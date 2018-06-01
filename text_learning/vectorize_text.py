@@ -42,20 +42,25 @@ for name, from_person in [("sara", from_sara), ("chris", from_chris)]:
         ### only look at first 200 emails when developing
         ### once everything is working, remove this line to run over full dataset
         temp_counter += 1
-        if temp_counter < 200:
+        if temp_counter < 2000000:
             path = os.path.join('..', path[:-1])
             print path
             email = open(path, "r")
 
             ### use parseOutText to extract the text from the opened email
+            text = parseOutText(email)
 
             ### use str.replace() to remove any instances of the words
             ### ["sara", "shackleton", "chris", "germani"]
+            for word in ['sara', 'shackleton', 'chris', 'germani']:
+                text = text.replace(word, '')
 
             ### append the text to word_data
+            word_data.append(text)
 
             ### append a 0 to from_data if email is from Sara, and 1 if email is from Chris
-
+            mapper = {'sara': 0, 'chris': 1}
+            from_data.append(mapper[name])
 
             email.close()
 
@@ -67,9 +72,17 @@ pickle.dump( word_data, open("your_word_data.pkl", "w") )
 pickle.dump( from_data, open("your_email_authors.pkl", "w") )
 
 
-
-
-
 ### in Part 4, do TfIdf vectorization here
+from sklearn.feature_extraction.text import TfidfVectorizer
 
+vectorizer = TfidfVectorizer(stop_words='english')
+word_repr = vectorizer.fit_transform(word_data)
 
+# Print the number of feature names
+print len(vectorizer.get_feature_names())
+
+# Print out word number 34597 in the vocabulary if it exists
+try:
+    print vectorizer.get_feature_names()[34597]
+except:
+    pass
